@@ -10,20 +10,44 @@ function kata.split(path, separator)
   return output
 end
 
-function kata.combinations(elements, length)
+function kata.combinations(elements)
   local combos = {}
 
-  for i=1, #elements do
-    if length == 1 then
-      return {{elements[i]}}
-    else
-      local subelements = {}
-      for j=2, #elements do
-        table.insert(subelements, elements[j])
+  -- outer loop is sample size
+  for i = 1, #elements do
+    -- indices to retrieve from elements
+    local indices = {}
+    for j = 1, i do
+      -- initialize indices to first i indices of elements
+      table.insert(indices, j)
+    end
+
+    -- loop until the indices can't be advanced
+    while true do
+      local combo = {}
+      for k = 1, #indices do
+        table.insert(combo, elements[indices[k]])
       end
-      for _, n in ipairs(kata.combinations(subelements, length-1)) do
-        return {kata.merge_table({elements[i]}, n)}
+
+      table.insert(combos, table.concat(combo, '-'))
+
+      local index_advanced = false
+      -- advance indices in reverse order
+      for k = #indices, 1, -1 do
+        if indices[k] ~= #elements and indices[k] + 1 ~= indices[k + 1] then
+          indices[k] = indices[k] + 1
+          -- reset subsequent indices to immediately follow changed index
+          for l = k + 1, #indices do
+            indices[l] = indices[k] + l - k
+          end
+
+          index_advanced = true
+          break -- only advance one index at a time
+        end
       end
+
+      -- no index could be advanced
+      if not index_advanced then break end
     end
   end
 
