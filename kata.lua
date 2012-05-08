@@ -10,7 +10,7 @@ function kata.split(path, separator)
   return output
 end
 
-function kata.combine2(elements, length)
+function kata.combine(elements, length)
   local combos = {}
   for i=1, #elements do
     if length == 1 then
@@ -18,7 +18,7 @@ function kata.combine2(elements, length)
     else
       local copy = kata.append_table({}, elements, i+1)
       local head = elements[i]
-      for _, combo in ipairs(kata.combine2(copy, length-1)) do
+      for _, combo in ipairs(kata.combine(copy, length-1)) do
         table.insert(combos, kata.append_table({head}, combo))
       end
     end
@@ -26,43 +26,12 @@ function kata.combine2(elements, length)
   return combos
 end
 
-function kata.combine(elements, length)
-  local combos = {}
-  local indices = {}
-  for j = 1, length do
-    -- initialize indices to first i indices of elements
-    table.insert(indices, j)
+function kata.map(elements, func)
+  local mapped = {}
+  for _, x in ipairs(elements) do
+    table.insert(mapped, func(x))
   end
-
-  -- loop until the indices can't be advanced
-  while true do
-    local combo = {}
-    for k = 1, #indices do
-      table.insert(combo, elements[indices[k]])
-    end
-
-    table.insert(combos, table.concat(combo, '-'))
-
-    local index_advanced = false
-    -- advance indices in reverse order
-    for k = #indices, 1, -1 do
-      if indices[k] ~= #elements and indices[k] + 1 ~= indices[k + 1] then
-        indices[k] = indices[k] + 1
-        -- reset subsequent indices to immediately follow changed index
-        for l = k + 1, #indices do
-          indices[l] = indices[k] + l - k
-        end
-
-        index_advanced = true
-        break -- only advance one index at a time
-      end
-    end
-
-    -- no index could be advanced
-    if not index_advanced then break end
-  end
-
-  return combos
+  return mapped
 end
 
 function kata.combinations(elements)
@@ -70,7 +39,7 @@ function kata.combinations(elements)
   for i=1, #elements do
     kata.append_table(all, kata.combine(elements, i))
   end
-  return all
+  return kata.map(all, function(x) return table.concat(x, '-') end)
 end
 
 function kata.append_table(t1, t2, start)

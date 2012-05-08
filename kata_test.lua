@@ -83,15 +83,15 @@ function test_combinations_of_four_elements()
   assert_equal(15, #result)
 end
 
-function test_combine2_length_one()
-  local result = kata.combine2({'a', 'b', 'c'}, 1)
+function test_combine_length_one()
+  local result = kata.combine({'a', 'b', 'c'}, 1)
   assert_equal('a', result[1][1])
   assert_equal('b', result[2][1])
   assert_equal('c', result[3][1])
 end
 
-function test_combine2_length_two()
-  local result = kata.combine2({'a', 'b', 'c'}, 2)
+function test_combine_length_two()
+  local result = kata.combine({'a', 'b', 'c'}, 2)
   assert_equal('a', result[1][1])
   assert_equal('b', result[1][2])
 
@@ -103,11 +103,18 @@ function test_combine2_length_two()
   assert_equal(3, #result)
 end
 
-function test_combine2_length_three()
-  local result = kata.combine2({'a', 'b', 'c'}, 3)
+function test_combine_length_three()
+  local result = kata.combine({'a', 'b', 'c'}, 3)
   assert_equal('a', result[1][1])
   assert_equal('b', result[1][2])
   assert_equal('c', result[1][3])
 
   assert_equal(1, #result)
+end
+
+function test_map()
+  local result = kata.map({4,5,6}, function(x) return x * 10 end)
+  assert_equal(40, result[1])
+  assert_equal(50, result[2])
+  assert_equal(60, result[3])
 end
