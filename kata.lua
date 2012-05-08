@@ -10,54 +10,56 @@ function kata.split(path, separator)
   return output
 end
 
-function kata.combinations(elements)
+function kata.combine(elements, length)
   local combos = {}
+  local indices = {}
+  for j = 1, length do
+    -- initialize indices to first i indices of elements
+    table.insert(indices, j)
+  end
 
-  -- outer loop is sample size
-  for i = 1, #elements do
-    -- indices to retrieve from elements
-    local indices = {}
-    for j = 1, i do
-      -- initialize indices to first i indices of elements
-      table.insert(indices, j)
+  -- loop until the indices can't be advanced
+  while true do
+    local combo = {}
+    for k = 1, #indices do
+      table.insert(combo, elements[indices[k]])
     end
 
-    -- loop until the indices can't be advanced
-    while true do
-      local combo = {}
-      for k = 1, #indices do
-        table.insert(combo, elements[indices[k]])
-      end
+    table.insert(combos, table.concat(combo, '-'))
 
-      table.insert(combos, table.concat(combo, '-'))
-
-      local index_advanced = false
-      -- advance indices in reverse order
-      for k = #indices, 1, -1 do
-        if indices[k] ~= #elements and indices[k] + 1 ~= indices[k + 1] then
-          indices[k] = indices[k] + 1
-          -- reset subsequent indices to immediately follow changed index
-          for l = k + 1, #indices do
-            indices[l] = indices[k] + l - k
-          end
-
-          index_advanced = true
-          break -- only advance one index at a time
+    local index_advanced = false
+    -- advance indices in reverse order
+    for k = #indices, 1, -1 do
+      if indices[k] ~= #elements and indices[k] + 1 ~= indices[k + 1] then
+        indices[k] = indices[k] + 1
+        -- reset subsequent indices to immediately follow changed index
+        for l = k + 1, #indices do
+          indices[l] = indices[k] + l - k
         end
-      end
 
-      -- no index could be advanced
-      if not index_advanced then break end
+        index_advanced = true
+        break -- only advance one index at a time
+      end
     end
+
+    -- no index could be advanced
+    if not index_advanced then break end
   end
 
   return combos
 end
 
+function kata.combinations(elements)
+  local all = {}
+  for i=1, #elements do
+    kata.append_table(all, kata.combine(elements, i))
+  end
+  return all
+end
 
-function kata.merge_table(t1, t2)
-  for k,v in pairs(t2) do
-    table.insert(t1, k, v)
+function kata.append_table(t1, t2)
+  for _,v in ipairs(t2) do
+    table.insert(t1, v)
   end
   return t1
 end
