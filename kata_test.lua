@@ -82,3 +82,32 @@ function test_combinations_of_four_elements()
   assert_equal('foo-bar-baz-qux', result[15])
   assert_equal(15, #result)
 end
+
+function test_combine2_length_one()
+  local result = kata.combine2({'a', 'b', 'c'}, 1)
+  assert_equal('a', result[1][1])
+  assert_equal('b', result[2][1])
+  assert_equal('c', result[3][1])
+end
+
+function test_combine2_length_two()
+  local result = kata.combine2({'a', 'b', 'c'}, 2)
+  assert_equal('a', result[1][1])
+  assert_equal('b', result[1][2])
+
+  assert_equal('a', result[2][1])
+  assert_equal('c', result[2][2])
+
+  assert_equal('b', result[3][1])
+  assert_equal('c', result[3][2])
+  assert_equal(3, #result)
+end
+
+function test_combine2_length_three()
+  local result = kata.combine2({'a', 'b', 'c'}, 3)
+  assert_equal('a', result[1][1])
+  assert_equal('b', result[1][2])
+  assert_equal('c', result[1][3])
+
+  assert_equal(1, #result)
+end

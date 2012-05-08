@@ -10,6 +10,22 @@ function kata.split(path, separator)
   return output
 end
 
+function kata.combine2(elements, length)
+  local combos = {}
+  for i=1, #elements do
+    if length == 1 then
+      table.insert(combos, { elements[i] })
+    else
+      local copy = kata.append_table({}, elements, i+1)
+      local head = elements[i]
+      for _, combo in ipairs(kata.combine2(copy, length-1)) do
+        table.insert(combos, kata.append_table({head}, combo))
+      end
+    end
+  end
+  return combos
+end
+
 function kata.combine(elements, length)
   local combos = {}
   local indices = {}
@@ -57,9 +73,10 @@ function kata.combinations(elements)
   return all
 end
 
-function kata.append_table(t1, t2)
-  for _,v in ipairs(t2) do
-    table.insert(t1, v)
+function kata.append_table(t1, t2, start)
+  start = start or 1
+  for i=start, #t2 do
+    table.insert(t1, t2[i])
   end
   return t1
 end
