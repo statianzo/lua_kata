@@ -52,18 +52,52 @@ end
 
 function kata.build_tree(path, existing)
   path = path or ""
-
   existing = existing or {}
-  local last = existing
+
   local nodes = kata.split(path, '/')
-  for _, w in ipairs(nodes) do
-    local conodes = kata.split(w, '|')
-    for _, x in ipairs(conodes) do
-      last[x] = {}
-    end
-    last = last[w]
+  if #nodes == 0 then
+    return existing
   end
+
+  local head = table.remove(nodes, 1)
+  local tail = table.concat(nodes, '/')
+
+  local conodes = kata.split(head, '|')
+  local combos = kata.combinations(conodes)
+  for _, x in ipairs(combos) do
+    existing[x] = existing[x] or {}
+    kata.build_tree(tail, existing[x])
+  end
+
   return existing
+end
+
+function kata.collapse_tree(tree, path)
+  path = path or ''
+
+  local keys = kata.table_keys(tree)
+  table.sort(keys, function(k1, k2) return #k1 < #k2 end)
+  local largest = keys[#keys]
+  if largest == nil then
+    return path
+  end
+
+  local uniques = kata.split(largest, '-')
+
+  local child = kata.collapse_tree(tree[keys[1]], path)
+
+  path = '/' .. table.concat(uniques, '|') .. child
+
+  return path
+end
+
+function kata.table_keys(t)
+  local result = {}
+  for k,_ in pairs(t) do
+    table.insert(result, k)
+  end
+
+  return result
 end
 
 return kata

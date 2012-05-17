@@ -42,14 +42,60 @@ function test_adding_to_an_existing_tree()
   assert_table(result.foo.bar.qux)
 end
 
-
-function test_split_will_separate()
-  local result = kata.split("/foo/bar/baz|bing", "/")
-  assert_table(result)
-  assert_equal(result[1], 'foo')
-  assert_equal(result[2], 'bar')
-  assert_equal(result[3], 'baz|bing')
+function test_combinatiorial_leaf_nodes()
+  local result = kata.build_tree("/foo/bar/baz|bing|qux")
+  assert_table(result.foo.bar.baz)
+  assert_table(result.foo.bar.bing)
+  assert_table(result.foo.bar.qux)
+  assert_table(result.foo.bar['baz-bing'])
+  assert_table(result.foo.bar['baz-qux'])
+  assert_table(result.foo.bar['bing-qux'])
+  assert_table(result.foo.bar['baz-bing-qux'])
 end
+
+function test_combinatiorial_leaf_nodes()
+  local result = kata.build_tree("/foo/bar|baz/qux|pow")
+  local keys = table_keys(result.foo.bar)
+  assert_table(result.foo.bar.qux)
+  assert_table(result.foo.bar.pow)
+  assert_table(result.foo.bar['qux-pow'])
+
+  assert_table(result.foo.baz.qux)
+  assert_table(result.foo.baz.pow)
+  assert_table(result.foo.baz['qux-pow'])
+
+  assert_table(result.foo['bar-baz'].qux)
+  assert_table(result.foo['bar-baz'].pow)
+  assert_table(result.foo['bar-baz']['qux-pow'])
+end
+
+function test_combinatiorial_leaf_nodes()
+  local tree = kata.build_tree("/foo/bar/ack/cow")
+  local result = kata.build_tree("/foo/bar|baz/qux|pow", tree)
+  assert_table(result.foo.bar.qux)
+  assert_table(result.foo.bar.pow)
+  assert_table(result.foo.bar['qux-pow'])
+
+  assert_table(result.foo.baz.qux)
+  assert_table(result.foo.baz.pow)
+  assert_table(result.foo.baz['qux-pow'])
+
+  assert_table(result.foo['bar-baz'].qux)
+  assert_table(result.foo['bar-baz'].pow)
+  assert_table(result.foo['bar-baz']['qux-pow'])
+
+  assert_table(result.foo.bar.ack.cow)
+end
+
+function test_collapsing_tree_to_string()
+  local tree_string = "/foo/bar|baz/qux|pow"
+  local tree = kata.build_tree(tree_string)
+  assert_equal(tree_string, kata.collapse_tree(tree))
+end
+
+
+
+-- helper tests
 
 function test_combinations()
   local result = kata.combinations({'foo', 'bar', 'baz'})
@@ -117,4 +163,12 @@ function test_map()
   assert_equal(40, result[1])
   assert_equal(50, result[2])
   assert_equal(60, result[3])
+end
+
+function test_split_will_separate()
+  local result = kata.split("/foo/bar/baz|bing", "/")
+  assert_table(result)
+  assert_equal(result[1], 'foo')
+  assert_equal(result[2], 'bar')
+  assert_equal(result[3], 'baz|bing')
 end
