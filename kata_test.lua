@@ -93,7 +93,71 @@ function test_collapsing_tree_to_string()
   assert_equal(tree_string, kata.collapse_tree(tree))
 end
 
+function test_find_similar_subtree()
+  local tree = kata.build_tree("/foo/bar/baz|qux")
+  local appended = kata.build_tree("/foo/bing/baz|qux", tree)
 
+  local result = kata.find_synonym(appended, "/foo/bar")
+
+  assert_equal(1, #result)
+  assert_equal("/foo/bing", result[1])
+end
+
+function test_subtree()
+  local tree = kata.build_tree("/foo/bar/baz|qux")
+  local result = kata.subtree(tree, "/foo/bar")
+
+  assert_table(result)
+  assert_table(result.baz)
+  assert_table(result.qux)
+end
+
+function test_traverse()
+  local tree = kata.build_tree("/foo/bar/baz|qux")
+  local paths = {}
+
+  kata.traverse_tree(tree, function(t, path)
+    table.insert(paths, path)
+  end)
+
+  local result = table.concat(paths, ':')
+
+  local expected_paths = {'/', '/foo', '/foo/bar', '/foo/bar/baz', '/foo/bar/qux', '/foo/bar/baz-qux'}
+  for _, expected_path in ipairs(expected_paths) do
+    local found = false
+    for _, path in ipairs(paths) do
+      if path == expected_path then
+        found = true
+        break
+      end
+    end
+    assert(found)
+  end
+end
+
+function test_compare_trees_returns_true_for_equivalent_trees()
+  local tree = kata.build_tree("/foo/bar/baz|qux")
+  local another_tree = kata.build_tree("/foo/bar/baz|qux")
+
+  assert(kata.compare_trees(tree, another_tree))
+end
+
+function test_compare_trees()
+  local tree = kata.build_tree("/foo/bar/baz|qux")
+  local appended = kata.build_tree("/foo/bing/baz|qux", tree)
+
+  local sub1 = kata.subtree(appended, "/foo/bar")
+  local sub2 = kata.subtree(appended, "/foo/bing/qux")
+
+  assert_false(kata.compare_trees(sub1, sub2))
+end
+
+function test_compare_trees_returns_false_for_unequivalent_trees()
+  local tree = kata.build_tree("/foo/bar/baz|qux")
+  local another_tree = kata.build_tree("/not/the|same")
+
+  assert_false(kata.compare_trees(tree, another_tree))
+end
 
 -- helper tests
 

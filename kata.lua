@@ -100,4 +100,52 @@ function kata.table_keys(t)
   return result
 end
 
+function kata.find_synonym(tree, target_path)
+  local target_tree = kata.subtree(tree, target_path)
+
+  local synonyms = {}
+  kata.traverse_tree(tree, function(t, t_path)
+    if kata.compare_trees(target_tree, t) and target_path ~= t_path then
+      table.insert(synonyms, t_path)
+    end
+  end)
+
+  return synonyms
+end
+
+
+function kata.subtree(tree, path)
+  local segments = kata.split(path, '/')
+  local current = tree
+  for _,seg in ipairs(segments) do
+    current = current[seg]
+  end
+
+  return current
+end
+
+function kata.traverse_tree(tree, fn, path)
+  fn(tree, path or '/')
+  path = path or ''
+  for key, child in pairs(tree) do
+    kata.traverse_tree(child, fn, path .. '/' .. key)
+  end
+end
+
+function kata.compare_trees(t1, t2)
+  if not #t1 == #t2 then
+    return false
+  end
+
+  for key,sub in pairs(t1) do
+    if not t2[key] then
+      return false
+    elseif not kata.compare_trees(sub, t2[key]) then
+      return false
+    end
+  end
+
+  return true
+end
+
 return kata
